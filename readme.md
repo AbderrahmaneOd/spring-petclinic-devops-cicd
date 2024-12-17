@@ -1,6 +1,6 @@
 # Spring Petclinic CI/CD Pipeline
 
-This project demonstrates a CI/CD pipeline for the Spring Petclinic application using Jenkins, Maven, SonarQube, Nexus, and Tomcat. The pipeline automates building, testing, code analysis, artifact storage, and deployment using Jenkins Pipeline as Code.
+This project demonstrates a CI/CD pipeline for the [Spring Petclinic application](https://github.com/spring-projects/spring-petclinic) using Jenkins, Maven, SonarQube, Nexus, and Tomcat. The pipeline automates building, testing, code analysis, artifact storage, and deployment using Jenkins Pipeline as Code.
 
 
 ## 📋 Table of Contents
