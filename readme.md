@@ -27,7 +27,7 @@ The project utilizes a modular, scalable architecture with dedicated Virtual Mac
   - Performs static code analysis
   - Ensures code quality and identifies potential issues
 
-- **Nexus Repository**: 
+- **Nexus VM**: 
   - Manages and stores build artifacts
   - Provides artifact versioning and distribution
 
@@ -81,8 +81,9 @@ The CI/CD pipeline follows these key stages:
 
 1. Install Maven and JDK 17 in Jenkins Global Tool Configuration
 2. Add SSH credentials for Tomcat server access
-3. Create a new Jenkins Pipeline project
-4. Copy the `Jenkinsfile` file to your Jenkins project
+3. Add credentials in `~/.m2/settings.xml` to connect to Nexus Repository
+4. Create a new Jenkins Pipeline project
+5. Copy the `Jenkinsfile` file to your Jenkins project
 
 ### 2. Jenkinsfile Environment Variables
 
