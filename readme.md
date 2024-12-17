@@ -1,116 +1,102 @@
-# Spring Petclinic with CI/CD
+# Spring Petclinic CI/CD Pipeline
 
-This project demonstrates a CI/CD pipeline for the Spring Petclinic application using Jenkins, Maven, SonarQube, Nexus, and Tomcat. The pipeline is defined using Jenkins Pipeline as Code and includes stages for building, testing, code analysis, and deployment.
+This project demonstrates a CI/CD pipeline for the Spring Petclinic application using Jenkins, Maven, SonarQube, Nexus, and Tomcat. The pipeline automates building, testing, code analysis, artifact storage, and deployment using Jenkins Pipeline as Code.
 
-## Project Structure
 
-- **Jenkins Master VM**: Hosts Jenkins and SonarQube.
-- **Nexus VM**: Hosts Nexus for artifact management.
-- **Tomcat VM**: Hosts the Tomcat server for deploying the application.
+## 📋 Table of Contents
 
-## Prerequisites
+1. [Architecture](#-architecture)
+2. [Technologies](#-technologies)
+3. [Prerequisites](#-prerequisites)
+4. [Pipeline Stages](#-pipeline-stages)
+5. [Setup Instructions](#-setup-instructions)
+6. [Jenkinsfile Explanation](#-jenkinsfile-breakdown)
+7. [Future Enhancements](#-future-enhancements)
 
-- Jenkins
-- SonarQube
-- Nexus
-- Tomcat
-- Maven
-- JDK 17
+## 🏗️ Architecture
 
-## Pipeline Overview
+The project utilizes a modular, scalable architecture with dedicated Virtual Machines (VMs) for different components:
 
-The CI/CD pipeline is defined in the `Jenkinsfile` and consists of the following stages:
+### Components
+- **Jenkins VM**: 
+  - Orchestrates the entire CI/CD pipeline
+  - Runs build and test processes
+  - Integrates with SonarQube and Nexus
 
-1. **Git Checkout**: Clones the repository from GitHub.
-2. **Compile**: Compiles the project using Maven.
-3. **Test**: Runs the unit tests.
-4. **SonarQube Analysis**: Analyzes the code quality using SonarQube.
-5. **Build**: Packages the application as a WAR file.
-6. **Deploy Artifacts to Nexus**: Deploys the built artifacts to Nexus.
-7. **Copy WAR to Tomcat Server**: Copies the WAR file to the Tomcat server.
-8. **Deploy WebApp**: Deploys the WAR file on the Tomcat server.
+- **SonarQube**: 
+  - Performs static code analysis
+  - Ensures code quality and identifies potential issues
 
-## Jenkinsfile
+- **Nexus Repository**: 
+  - Manages and stores build artifacts
+  - Provides artifact versioning and distribution
 
-```groovy
-pipeline {
-    agent any 
-    
-    tools {
-        jdk 'jdk17'
-        maven 'maven3'
-    }
-    
-    environment {
-        REMOTE_USER = 'your-tom-cat-server-user'
-        REMOTE_HOST = 'your-tom-cat-server-host'
-        REMOTE_PATH = '/tmp'
-        TOMCAT_PATH = '/opt/tomcat/webapps'
-    }
-    
-    stages {
-        
-        stage("Git Checkout") {
-            steps {
-                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/AbderrahmaneOd/spring-petclinic-jenkins'
-            }
-        }
-        
-        stage("Compile") {
-            steps {
-                sh "mvn clean compile"
-            }
-        }
-        
-        stage("Test") {
-            steps {
-                sh "mvn test"
-            }
-        }
-        
-        stage('Sonarqube Analysis') {
-            steps {
-                sh ''' 
-                mvn sonar:sonar \
-                    -Dsonar.projectKey=Petclinic-SpringBoot \
-                    -Dsonar.projectName='Petclinic-SpringBoot' \
-                    -Dsonar.host.url=http://localhost:9000 \
-                    -Dsonar.token=<your-auth-token>
-                '''
-            }
-        }
-        
-        stage("Build") {
-            steps {
-                sh "mvn clean package"
-            }
-        }
-        
-        stage("Deploy Artifacts to Nexus") {
-            steps {
-                sh 'mvn deploy -DskipTests'
-            }
-        }
-        
-        stage('Copy War to Tomcat Server') {
-            steps {
-                sshagent(['tomcat-server']) {
-                    sh 'scp -o StrictHostKeyChecking=no **/*.war ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}'
-                }
-            }
-        }
-        
-        stage("Deploy WebApp") {
-            steps {
-                sshagent(['tomcat-server']) {
-                    sh """
-                    ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} '
-                        sudo mv ${REMOTE_PATH}/*.war ${TOMCAT_PATH} && 
-                        sudo chown -R tomcat:tomcat ${TOMCAT_PATH}
-                    '
-                    """
-                }
-            }
-        }
-    }
-}
+- **Tomcat VM**:
+  - Hosts the application server
+  - Receives and deploys the final WAR file
+
+## 🛠️ Technologies
+
+- **CI/CD**: Jenkins
+- **Build Tool**: Maven
+- **Code Quality**: SonarQube
+- **Artifact Repository**: Nexus
+- **Application Server**: Tomcat
+- **Testing**: JUnit
+- **Java**: JDK 17
+
+## 📋 Prerequisites
+
+Before setting up the pipeline, ensure you have:
+
+- Jenkins with:
+  - JDK 17
+  - Maven
+
+- Installed and configured:
+  - SonarQube
+  - Nexus Repository Manager
+  - Tomcat Server
+  - Maven
+  - JDK 17
+
+## 🔄 Pipeline Stages
+
+![Global CI/CD pipeline](/images/cicd-pipeline.png)
+
+The CI/CD pipeline follows these key stages:
+
+1. **Git Checkout**: Clone repository from GitHub
+2. **Compile**: Compile project using Maven
+3. **Test**: Run unit tests
+4. **SonarQube Analysis**: Analyze code quality
+5. **Build**: Package application as WAR
+6. **Deploy to Nexus**: Store artifacts
+7. **Copy to Tomcat**: Transfer WAR to server
+8. **Deploy WebApp**: Activate application
+
+## 🛠 Setup Instructions
+
+### 1. Jenkins Configuration
+
+1. Install Maven and JDK 17 in Jenkins Global Tool Configuration
+2. Add SSH credentials for Tomcat server access
+3. Create a new Jenkins Pipeline project
+4. Copy the `Jenkinsfile` file to your Jenkins project
+
+### 2. Jenkinsfile Environment Variables
+
+Update the following in the Jenkinsfile:
+- `REMOTE_USER`: Tomcat server username
+- `REMOTE_HOST`: Tomcat server hostname
+- `REMOTE_PATH`: Temporary file transfer location
+- `TOMCAT_PATH`: Tomcat webapps directory
+- SonarQube authentication token
+
+
+
+## 🚧 Future Enhancements
+
+- [ ] Containerize infrastructure components using Docker
+- [ ] Integrate additional security scanning
+- [ ] Create staging and production environment deployments
