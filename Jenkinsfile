@@ -7,8 +7,8 @@ pipeline {
     }
     
     environment {
-        REMOTE_USER = 'abderrahmane'
-        REMOTE_HOST = '20.199.75.233'
+        REMOTE_USER = 'your-tom-cat-server-user'
+        REMOTE_HOST = 'your-tom-cat-server-host'
         REMOTE_PATH = '/tmp'
         TOMCAT_PATH = '/opt/tomcat/webapps'
     }
@@ -41,7 +41,7 @@ pipeline {
                         -Dsonar.projectKey=Petclinic-SpringBoot \
                         -Dsonar.projectName='Petclinic-SpringBoot' \
                         -Dsonar.host.url=http://localhost:9000 \
-                        -Dsonar.token=sqp_b8b93b21e34210008a3c6b7a1bcc3a6e0799b546
+                        -Dsonar.token=<your-auth-token>
                      '''
             }
         }
