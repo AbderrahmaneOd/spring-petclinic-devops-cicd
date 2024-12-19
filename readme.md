@@ -68,18 +68,17 @@ The CI/CD pipeline follows these key stages:
 1. Update system packages:
 ```bash
 sudo apt update
-sudo apt upgrade
 ```
 
 2. Install Jenkins:
 ```bash
-curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
-  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
-echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
   https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
   /etc/apt/sources.list.d/jenkins.list > /dev/null
-sudo apt update
-sudo apt install jenkins
+sudo apt-get update
+sudo apt-get install jenkins
 ```
 
 ### Nexus Installation
@@ -89,22 +88,61 @@ cd /opt
 wget https://download.sonatype.com/nexus/3/latest-unix.tar.gz
 tar -zxvf latest-unix.tar.gz
 sudo mv nexus-3.* nexus
+sudo mv nexus /opt/nexus
+
 ```
 
 2. Create systemd service:
 ```bash
 sudo vim /etc/systemd/system/nexus.service
-# Add configuration for Nexus service
+```
+
+3.  Add configuration for Nexus service
+```bash
+[Unit]
+Description=nexus service
+After=network.target
+
+[Service]
+Type=forking
+LimitNOFILE=65536
+ExecStart=/opt/nexus/bin/nexus start
+ExecStop=/opt/nexus/bin/nexus stop
+#User=nexus
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+```
+
+To enable nexus service at system startup
+
+```bash
 sudo systemctl enable nexus
+```
+
+To start nexus service using systemctl
+```bash
 sudo systemctl start nexus
+```
+THe default username is `admin` and the default password is located in:
+```bash
+cat /opt/sonatype-work/nexus3/admin.password
 ```
 
 ### Tomcat Installation
 1. Install Tomcat:
 ```bash
-sudo apt install tomcat9
-sudo systemctl enable tomcat9
-sudo systemctl start tomcat9
+wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.15/bin/apache-tomcat-10.1.15.tar.gz
+```
+2. Create a dedicated user to run Apache Tomcat:
+```bash
+useradd -r -m -U -d /opt/tomcat -s /bin/false tomcat 
+```
+3. Extract the downloaded file and move it to `/opt` directory:
+```bash
+tar xzf apache-tomcat-10.1.15.tar.gz
+mv apache-tomcat-10.1.15/* /opt/tomcat/
 ```
 
 ### SonarQube Setup
@@ -152,12 +190,12 @@ Update the `pom.xml` with Nexus repository information:
   <repository>
     <id>deployment</id>
     <name>Internal Releases</name>
-    <url>http://<your-tomcat-server-ip>:<port>/repository/spring-petclinic-release/</url>
+    <url>http://<your-tomcat-server-ip>:8081/repository/spring-petclinic-release/</url>
   </repository>
   <snapshotRepository>
     <id>deployment</id>
     <name>Internal Snapshot Releases</name>
-    <url>http://<your-tomcat-server-ip>:<port>/repository/spring-petclinic-snap/</url>
+    <url>http://<your-tomcat-server-ip>:8081/repository/spring-petclinic-snap/</url>
   </snapshotRepository>
 </distributionManagement>
 ```
