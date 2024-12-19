@@ -257,6 +257,26 @@ Update the following in the Jenkinsfile:
 - `TOMCAT_PATH`: Tomcat webapps directory
 - SonarQube authentication token
 
+## 📷 Deployment Verification
+
+### Nexus Repository
+After successful deployment to Nexus, you should see:
+- Release artifacts in the `spring-petclinic-release` repository:
+  ![Release Repository](/images/nexus-repository-release.png)
+- Snapshot artifacts in the `spring-petclinic-snap` repository:
+  ![Snapshot Repository](/images/nexus-repository-snapshot.png)
+
+### Tomcat Deployment
+The application deployment can be verified in two ways:
+
+1. Through Tomcat Manager UI:
+   ![Tomcat Manager](/images/tomcat-manager-ui.png)
+   *The `/spring-petclinic` application should be listed as "running"*
+
+2. Accessing the Application:
+   ![PetClinic UI](/images/PetClinic-deployed.png)
+   *The Spring PetClinic application interface should be accessible*
+
 
 
 ## 🚧 Future Enhancements
