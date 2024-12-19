@@ -85,9 +85,8 @@ sudo apt-get install jenkins
 cd /opt
 wget https://download.sonatype.com/nexus/3/latest-unix.tar.gz
 tar -zxvf latest-unix.tar.gz
+rm latest-unix.tar.gz
 sudo mv nexus-3.* nexus
-sudo mv nexus /opt/nexus
-
 ```
 
 2. Create systemd service:
@@ -126,7 +125,7 @@ sudo systemctl start nexus
 
 The default username is `admin` and the default password is located in:
 ```bash
-cat /opt/sonatype-work/nexus3/admin.password
+cat /opt/nexus/sonatype-work/nexus3/admin.password
 ```
 
 ### Tomcat Installation
