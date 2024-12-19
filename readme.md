@@ -61,7 +61,7 @@ The CI/CD pipeline follows these key stages:
 - Docker and Docker Compose
 - Java Development Kit 17
 - Maven 3.8+
-- 
+
 ### Jenkins Installation
 1. Update system packages:
 ```bash
@@ -91,11 +91,11 @@ sudo mv nexus-3.* nexus
 
 2. Create systemd service:
 ```bash
-sudo vim /etc/systemd/system/nexus.service
+sudo nano /etc/systemd/system/nexus.service
 ```
 
 3. Add configuration for Nexus service:
-```bash
+```ini
 [Unit]
 Description=nexus service
 After=network.target
@@ -105,40 +105,80 @@ Type=forking
 LimitNOFILE=65536
 ExecStart=/opt/nexus/bin/nexus start
 ExecStop=/opt/nexus/bin/nexus stop
-#User=nexus
 Restart=on-abort
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-To enable nexus service at system startup
-
+4. Enable and start Nexus:
 ```bash
 sudo systemctl enable nexus
-```
-
-To start nexus service using systemctl
-```bash
 sudo systemctl start nexus
 ```
 
-The default username is `admin` and the default password is located in:
+5. Get the default admin password:
 ```bash
 cat /opt/nexus/sonatype-work/nexus3/admin.password
 ```
 
 ### Tomcat Installation
+1. Download and install Tomcat:
 ```bash
-# Download and install Tomcat
-wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.15/bin/apache-tomcat-10.1.15.tar.gz
+# Download and install Tomcat 11
+wget https://dlcdn.apache.org/tomcat/tomcat-11/v11.0.2/bin/apache-tomcat-11.0.2.tar.gz
 
 # Create service user
-useradd -r -m -U -d /opt/tomcat -s /bin/false tomcat
+sudo useradd -r -m -U -d /opt/tomcat -s /bin/false tomcat
 
 # Extract and configure
-tar xzf apache-tomcat-10.1.15.tar.gz
-mv apache-tomcat-10.1.15/* /opt/tomcat/
+tar xzf apache-tomcat-11.0.2.tar.gz
+sudo mv apache-tomcat-11.0.2/* /opt/tomcat/
+
+# Set permissions
+sudo chown -R tomcat: /opt/tomcat
+```
+
+2. Configure Tomcat users (`/opt/tomcat/conf/tomcat-users.xml`):
+```xml
+<tomcat-users>
+    <role rolename="manager-gui" />
+    <user username="manager" password="password" roles="manager-gui" />
+    <role rolename="admin-gui" />
+    <user username="admin" password="password" roles="manager-gui,admin-gui" />
+</tomcat-users>
+```
+
+3. Create Tomcat service (`/etc/systemd/system/tomcat.service`):
+```ini
+[Unit]
+Description=Apache Tomcat 11 Web Application Server
+After=network.target
+ 
+[Service]
+Type=forking
+ 
+User=tomcat
+Group=tomcat
+ 
+Environment="JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"
+Environment="CATALINA_HOME=/opt/tomcat"
+Environment="CATALINA_BASE=/opt/tomcat"
+Environment="CATALINA_PID=/opt/tomcat/temp/tomcat.pid"
+Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
+ 
+ExecStart=/opt/tomcat/bin/startup.sh
+ExecStop=/opt/tomcat/bin/shutdown.sh
+ 
+[Install]
+WantedBy=multi-user.target
+```
+
+4. Start Tomcat service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl start tomcat
+sudo systemctl status tomcat
 ```
 
 ### SonarQube Setup
