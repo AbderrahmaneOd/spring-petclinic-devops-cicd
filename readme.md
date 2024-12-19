@@ -5,7 +5,7 @@ This project demonstrates a CI/CD pipeline for the [Spring Petclinic application
 
 ## 📋 Table of Contents
 1. [Architecture](#-architecture)
-2. [Technologies](#-technologies)
+2. [Technologies Stack](#-technologies-stack)
 3. [Prerequisites](#-prerequisites)
 4. [Infrastructure Setup](#-infrastructure-setup)
 5. [Pipeline Stages](#-pipeline-stages)
@@ -29,25 +29,17 @@ The project utilizes a modular, scalable architecture with three dedicated Virtu
   - Hosts the application server
   - Receives and deploys the final WAR file
 
-## 🛠️ Technologies
-- **CI/CD**: Jenkins
-- **Build Tool**: Maven
-- **Code Quality**: SonarQube
-- **Artifact Repository**: Nexus
-- **Application Server**: Tomcat
-- **Testing**: JUnit
-- **Java**: JDK 17
+## 🛠️ Technologies Stack
 
-## 📋 Prerequisites
-Before setting up the pipeline, ensure you have:
-- Three separate VMs for:
-  - Jenkins (with Docker for SonarQube)
-  - Nexus Repository Manager
-  - Tomcat Server
-- Jenkins with:
-  - JDK 17
-  - Maven
-  - Docker and Docker Compose
+| Category | Technology |
+|----------|------------|
+| CI/CD Platform | Jenkins |
+| Build System | Maven |
+| Code Analysis | SonarQube |
+| Artifact Repository | Nexus |
+| Application Server | Tomcat |
+| Testing Framework | JUnit |
+| Runtime | Java 17 |
  
 ## 🔄 Pipeline Stages
 The CI/CD pipeline follows these key stages:
@@ -64,6 +56,12 @@ The CI/CD pipeline follows these key stages:
 
 ## 🔧 Infrastructure Setup
 
+### Prerequisites
+- Ubuntu/Debian-based system
+- Docker and Docker Compose
+- Java Development Kit 17
+- Maven 3.8+
+- 
 ### Jenkins Installation
 1. Update system packages:
 ```bash
@@ -97,7 +95,7 @@ sudo mv nexus /opt/nexus
 sudo vim /etc/systemd/system/nexus.service
 ```
 
-3.  Add configuration for Nexus service
+3. Add configuration for Nexus service:
 ```bash
 [Unit]
 Description=nexus service
@@ -125,28 +123,27 @@ To start nexus service using systemctl
 ```bash
 sudo systemctl start nexus
 ```
-THe default username is `admin` and the default password is located in:
+
+The default username is `admin` and the default password is located in:
 ```bash
 cat /opt/sonatype-work/nexus3/admin.password
 ```
 
 ### Tomcat Installation
-1. Install Tomcat:
 ```bash
+# Download and install Tomcat
 wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.15/bin/apache-tomcat-10.1.15.tar.gz
-```
-2. Create a dedicated user to run Apache Tomcat:
-```bash
-useradd -r -m -U -d /opt/tomcat -s /bin/false tomcat 
-```
-3. Extract the downloaded file and move it to `/opt` directory:
-```bash
+
+# Create service user
+useradd -r -m -U -d /opt/tomcat -s /bin/false tomcat
+
+# Extract and configure
 tar xzf apache-tomcat-10.1.15.tar.gz
 mv apache-tomcat-10.1.15/* /opt/tomcat/
 ```
 
 ### SonarQube Setup
-Create a `docker-compose.yaml` file on the Jenkins VM:
+Create `docker-compose.yaml`:
 
 ```yaml
 services:
@@ -171,9 +168,9 @@ services:
 
 ## ⚙️ Configuration Steps
 
-### 1. Maven Settings Configuration
-Update your `~/.m2/settings.xml` in the Jenkins VM:
+### Maven Settings
 
+Update `~/.m2/settings.xml`:
 ```xml
 <server>
     <id>deployment</id>
@@ -182,8 +179,8 @@ Update your `~/.m2/settings.xml` in the Jenkins VM:
 </server>
 ```
 
-### 2. Project POM Configuration
-Update the `pom.xml` with Nexus repository information:
+### Project Configuration
+Update the `pom.xml` with your Nexus Repository information:
 
 ```xml
 <distributionManagement>
@@ -200,8 +197,19 @@ Update the `pom.xml` with Nexus repository information:
 </distributionManagement>
 ```
 
+### Nexus Repository Configuration
 
-### 2. Jenkinsfile Environment Variables
+1. Access Nexus web interface
+2. Create Release Repository:
+   - Type: maven2 (hosted)
+   - Name: spring-petclinic-release
+   - Version Policy: Release
+3. Create Snapshot Repository:
+   - Type: maven2 (hosted)
+   - Name: spring-petclinic-snap
+   - Version Policy: Snapshot
+
+### Jenkinsfile Environment Variables
 
 Update the following in the Jenkinsfile:
 - `REMOTE_USER`: Tomcat server username
@@ -214,6 +222,6 @@ Update the following in the Jenkinsfile:
 
 ## 🚧 Future Enhancements
 
-- [ ] Containerize infrastructure components using Docker
+- [ ] Docker containerization of all components
 - [ ] Integrate additional security scanning
 - [ ] Create staging and production environment deployments
