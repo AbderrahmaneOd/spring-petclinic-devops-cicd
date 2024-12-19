@@ -134,7 +134,7 @@ services:
 ## ⚙️ Configuration Steps
 
 ### 1. Maven Settings Configuration
-Update your `~/.m2/settings.xml`:
+Update your `~/.m2/settings.xml` in the Jenkins VM:
 
 ```xml
 <server>
