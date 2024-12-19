@@ -49,7 +49,7 @@ Before setting up the pipeline, ensure you have:
   - Maven
   - Docker and Docker Compose
  
-  ## 🔄 Pipeline Stages
+## 🔄 Pipeline Stages
 The CI/CD pipeline follows these key stages:
 ![Global CI/CD pipeline](/images/cicd-pipeline.png)
 
