@@ -282,7 +282,9 @@ The application deployment can be verified in two ways:
    ![PetClinic UI](/images/PetClinic-deployed.png)
    *The Spring PetClinic application interface should be accessible*
 
+### SonarQube Code Analysis report
 
+![SonarQube Code Analysis report](/images/petclinic-sonarqube.png)
 
 ## 🚧 Future Enhancements
 
